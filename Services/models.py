@@ -1,4 +1,4 @@
-#from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
@@ -7,16 +7,15 @@ class UserProfile(models.Model):
         ("SOCIAL_SERVICE", "Social service (scholarship)"),
         ("REWARDS", "Institutional rewards"),
     ]
-    #user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    user_id = models.CharField(max_length=10)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    student_id = models.CharField(max_length=10)
     purpose = models.CharField(max_length=50, choices=PURPOSE_CHOICES, default="REWARDS")
     hours_balance = models.PositiveIntegerField(default=4)
     accumulated_hours = models.PositiveIntegerField()
     phone = models.CharField(max_length=10)
 
     def __str__(self):
-        return self.user_id
-        #return f"{self.user.username} ({self.hours_balance} hrs disponibles)"
+        return f"{self.user.username} ({self.hours_balance} hrs disponibles)"
 
 class Category(models.Model):
     category_id = models.CharField(max_length=10)
