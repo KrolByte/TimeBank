@@ -8,7 +8,7 @@ from .models import ServiceOffer, Exchange, Benefit
 
 def index(request):
     offers_list = ServiceOffer.objects.all()
-    return render(request, "index.html", {"ofertas": offers_list})
+    return render(request, "index.html", {"offers": offers_list})
 
 
 def exchanges(request):

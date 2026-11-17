@@ -44,7 +44,7 @@ class Benefit(models.Model):
 
 class ServiceOffer(models.Model):
     offer_id = models.CharField(max_length=10)
-    title = models.CharField(max_length=20)
+    title = models.CharField(max_length=50)
     description_offer = models.TextField()
     state_offer = models.BooleanField(default=True)
     provider = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -73,7 +73,7 @@ class Exchange(models.Model):
     duration_hours = models.PositiveIntegerField(default=1)
     state_exchange = models.CharField(max_length=10, choices=STATE_CHOICES, default="PENDING")
     calification = models.IntegerField(choices=QUALIFICATION_CHOICES, null=True, blank=True)
-    review = models.TextField()
+    review = models.TextField(null=True, blank=True)
     petitioner_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     offered_service = models.ForeignKey(ServiceOffer, on_delete=models.CASCADE, related_name="exchanges_requested",)
     offered_back = models.ForeignKey(ServiceOffer, on_delete=models.SET_NULL, null=True, blank=True, related_name="exchange_returned")

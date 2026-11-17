@@ -3,31 +3,54 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h3 class="fw-bold mb-0">Incentivos Institucionales</h3>
-        <p class="text-muted mb-0">Canjea tus horas acumuladas por beneficios universitarios</p>
+        <h3 class="fw-bold mb-0">Incentivos Institucionales Redimidos</h3>
+        <p class="text-muted mb-0">Historial de canjes por horas acumuladas</p>
     </div>
-    <span class="badge bg-primary fs-6 px-3 py-2">Acumulado: 32 hrs</span>
+    <a href="/admin/Services/benefit/add/" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Registrar Canje
+    </a>
 </div>
 
-<div class="row g-4">
-    {% for ben in benefits %}
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm rounded-4 h-100 card-hover">
-            <div class="card-body d-flex align-items-start gap-3">
-                <div class="bg-primary-subtle text-primary p-3 rounded-3 fs-3">
-                    <i class="bi {{ ben.icono }}"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="fw-bold mb-1">{{ ben.nombre }}</h5>
-                        <span class="badge bg-dark align-self-start">{{ ben.horas }} hrs</span>
-                    </div>
-                    <p class="text-muted small mb-3">{{ ben.descripcion }}</p>
-                    <button class="btn btn-sm btn-outline-primary">Solicitar Redención</button>
-                </div>
-            </div>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Estudiante</th>
+                        <th>Beneficio Solicitado</th>
+                        <th>Horas Usadas</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Entrega</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ben in benefits %}
+                    <tr>
+                        <td class="ps-4 fw-semibold">{{ ben.benefit_id }}</td>
+                        <td>{{ ben.user.user.username }}</td>
+                        <td class="fw-medium">{{ ben.get_type_benefit_display }}</td>
+                        <td><span class="badge bg-dark">{{ ben.hours_used }} hrs</span></td>
+                        <td>{{ ben.application_date }}</td>
+                        <td>
+                            {% if ben.delivery_state %}
+                                <span class="badge bg-success">Entregado</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            Aún no se han solicitado beneficios.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

@@ -1,30 +1,62 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3 class="fw-bold mb-3">Mis Intercambios</h3>
+<h3 class="fw-bold mb-3">Intercambios Registrados</h3>
 <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-4">#</th>
+                        <th class="ps-4">ID</th>
+                        <th>Solicitante</th>
                         <th>Servicio Solicitado</th>
                         <th>Contraprestación</th>
-                        <th>Fecha</th>
+                        <th>Fecha y Hora</th>
                         <th>Duración</th>
                         <th>Estado</th>
+                        <th>Calificación</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in exchanges %}
                     <tr>
-                        <td class="ps-4 fw-semibold">{{ item.id }}</td>
-                        <td>{{ item.servicio_recibido }}</td>
-                        <td class="text-muted">{{ item.servicio_devuelto }}</td>
-                        <td>{{ item.fecha }}</td>
-                        <td>{{ item.horas }}</td>
-                        <td><span class="badge bg-{{ item.badge }}">{{ item.estado }}</span></td>
+                        <td class="ps-4 fw-semibold">{{ item.exchange_id }}</td>
+                        <td>{{ item.petitioner_id.user.username }}</td>
+                        <td>{{ item.offered_service.title }}</td>
+                        <td class="text-muted">
+                            {% if item.offered_back %}
+                                {{ item.offered_back.title }} (Trueque)
+                            {% else %}
+                                Pago con saldo de horas
+                            {% endif %}
+                        </td>
+                        <td>{{ item.agreed_date }} • {{ item.start_hour|time:"g:i A" }}</td>
+                        <td>{{ item.duration_hours }} hr(s)</td>
+                        <td>
+                            {% if item.state_exchange == "COMPLETED" %}
+                                <span class="badge bg-success">{{ item.get_state_exchange_display }}</span>
+                            {% elif item.state_exchange == "ACCEPTED" %}
+                                <span class="badge bg-primary">{{ item.get_state_exchange_display }}</span>
+                            {% elif item.state_exchange == "CANCELLED" %}
+                                <span class="badge bg-danger">{{ item.get_state_exchange_display }}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ item.get_state_exchange_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.calification %}
+                                <span class="text-warning fw-semibold">★ {{ item.get_calification_display }}</span>
+                            {% else %}
+                                <span class="text-muted small">Sin calificar</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            No hay intercambios registrados todavía.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
