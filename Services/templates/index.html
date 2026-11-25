@@ -4,63 +4,51 @@
 <div class="p-4 p-md-5 mb-4 rounded-4 bg-white shadow-sm border-start border-primary border-5">
     <div class="row align-items-center">
         <div class="col-md-8">
-            <h1 class="fw-bold text-dark">Intercambia talento, gana tiempo</h1>
+            <h1 class="fw-bold text-dark">Share skills, earn time</h1>
             <p class="text-muted mb-3">
-                Comparte tus habilidades con otros estudiantes, acumula horas y redímelas por certificados de servicio social o incentivos académicos.
+                Exchange tutoring and technical skills with fellow students using time credits, and redeem accumulated hours for academic incentives.
             </p>
-            <a href="/admin/Services/serviceoffer/add/" class="btn btn-primary px-4">
-                <i class="bi bi-plus-circle me-1"></i> Publicar Oferta
+            <a href="{% url 'create_offer' %}" class="btn btn-primary px-4">
+                <i class="bi bi-plus-circle me-1"></i> Post Offer
             </a>
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <div class="p-3 bg-light rounded-3 d-inline-block text-start">
-                <small class="text-muted d-block">Ofertas activas</small>
-                <span class="fs-3 fw-bold text-primary">{{ ofertas|length }} servicios</span>
+                <small class="text-muted d-block">Registered offers</small>
+                <span class="fs-3 fw-bold text-primary">{{ offers|length }} services</span>
             </div>
         </div>
     </div>
 </div>
 
-<h4 class="fw-semibold mb-3">Servicios disponibles</h4>
+<h4 class="fw-semibold mb-3">Available Services</h4>
 <div class="row g-4">
-    {% for oferta in offers %}
+    {% for offer in offers %}
     <div class="col-md-4">
         <div class="card h-100 border-0 shadow-sm rounded-4 card-hover">
             <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="badge bg-primary-subtle text-primary">
-                        {{ oferta.category.name_category }}
+                        {{ offer.category.name_category }}
                     </span>
-                    <small class="text-muted">
-                        <i class="bi bi-person-circle me-1"></i>{{ oferta.provider.user.username }}
-                    </small>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-start">
-                    <h5 class="card-title fw-bold mb-1">{{ oferta.title }}</h5>
-                    {% if oferta.state_offer %}
-                        <span class="badge bg-success-subtle text-success">Activo</span>
+                    {% if offer.state_offer %}
+                        <span class="badge bg-success-subtle text-success">Active</span>
                     {% else %}
-                        <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+                        <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
                     {% endif %}
                 </div>
 
-                <p class="card-text text-muted small flex-grow-1 mt-2">
-                    {{ oferta.description_offer }}
+                <h5 class="card-title fw-bold mb-2">{{ offer.title }}</h5>
+
+                <p class="text-muted small mb-4 flex-grow-1">
+                    <i class="bi bi-person-circle me-1"></i>
+                    Provided by <strong>{{ offer.provider.user.get_full_name|default:offer.provider.user.username }}</strong>
                 </p>
 
-                <div class="border-top pt-3 mt-2">
-                    <small class="d-block text-secondary mb-2">
-                        <i class="bi bi-calendar-week me-1"></i>
-                        {% for horario in oferta.schedule_set.all %}
-                            {{ horario.get_days_week_display }} ({{ horario.start_hour|time:"g:i A" }} - {{ horario.end_hour|time:"g:i A" }}){% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            Horario por convenir
-                        {% endfor %}
-                    </small>
-                    <button class="btn btn-outline-primary w-100 btn-sm" {% if not oferta.state_offer %}disabled{% endif %}>
-                        Solicitar Intercambio
-                    </button>
+                <div class="border-top pt-3 mt-auto">
+                    <a href="{% url 'offer_detail' offer.id %}" class="btn btn-outline-primary w-100 btn-sm">
+                        View Offer
+                    </a>
                 </div>
             </div>
         </div>
@@ -68,7 +56,7 @@
     {% empty %}
     <div class="col-12">
         <div class="alert alert-light border text-center py-4 rounded-4">
-            Aún no hay ofertas de servicio registradas en la base de datos.
+            No service offers have been posted yet.
         </div>
     </div>
     {% endfor %}

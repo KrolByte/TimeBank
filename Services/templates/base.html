@@ -3,44 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TimeBank | Banco de Tiempo Estudiantil</title>
+    <title>TimeBank — Banco de Tiempo Estudiantil</title>
+    <!-- Bootstrap 5 y Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Tipografía moderna -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body { background-color: #f4f6f9; }
-        .navbar-brand { font-weight: 700; letter-spacing: 0.5px; }
-        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important; }
+        :root {
+            --tb-primary: #1e3a8a;       /* Azul Rey Institucional */
+            --tb-primary-hover: #172554; /* Azul Rey profundo */
+            --tb-violet: #7c3aed;        /* Violeta de acento */
+            --tb-cyan: #38bdf8;          /* Destello cian para contraste */
+            --tb-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--tb-bg);
+            color: #1e293b;
+        }
+
+        /* Navbar fija, sutil y sólida en Azul Rey */
+        .navbar-timebank {
+            background-color: var(--tb-primary);
+            border-bottom: 2px solid rgba(124, 58, 237, 0.45);
+            box-shadow: 0 4px 14px rgba(30, 58, 138, 0.16);
+            padding-top: 0.65rem;
+            padding-bottom: 0.65rem;
+        }
+
+        .navbar-timebank .nav-link {
+            color: rgba(255, 255, 255, 0.82);
+            font-weight: 500;
+            font-size: 0.92rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .navbar-timebank .nav-link:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-timebank .nav-link.active {
+            color: #ffffff;
+            background-color: var(--tb-violet);
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
+        }
+
+        /* Cápsula de saldo */
+        .badge-hours {
+            background-color: rgba(56, 189, 248, 0.16);
+            color: #bae6fd;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            font-weight: 600;
+            padding: 0.42rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+
+        /* Adaptación automática de clases Bootstrap */
+        .btn-primary {
+            background-color: var(--tb-primary);
+            border-color: var(--tb-primary);
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--tb-violet);
+            border-color: var(--tb-violet);
+        }
+
+        .btn-outline-primary {
+            color: var(--tb-primary);
+            border-color: var(--tb-primary);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--tb-primary);
+            border-color: var(--tb-primary);
+            color: #ffffff;
+        }
+
+        .text-primary {
+            color: var(--tb-primary) !important;
+        }
+
+        .bg-primary-subtle {
+            background-color: #ede9fe !important; /* Lavanda suave */
+            color: var(--tb-violet) !important;
+        }
+
+        .border-primary {
+            border-color: var(--tb-violet) !important;
+        }
+
+        /* Efecto suave en tarjetas */
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(30, 58, 138, 0.1) !important;
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- Barra de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <!-- Barra de navegación fija y sólida -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-timebank sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'index' %}">
-                <i class="bi bi-hourglass-split me-1"></i> TimeBank
+            <!-- Logo SVG minimalista y llamativo -->
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white" href="{% url 'index' %}">
+                <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="36" height="36" rx="9" fill="#7C3AED"/>
+                    <!-- Aro de reloj limpio -->
+                    <circle cx="18" cy="18" r="9.5" stroke="#FFFFFF" stroke-width="2.5"/>
+                    <!-- Manecillas minimalistas -->
+                    <path d="M18 12.5V18L21.5 20.5" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Punto de pulso / intercambio -->
+                    <circle cx="26.5" cy="9.5" r="3" fill="#38BDF8" stroke="#1E3A8A" stroke-width="1.5"/>
+                </svg>
+                <span class="fs-5">Time<span style="color: #38bdf8;">Bank</span></span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTimeBank">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="menuNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+            <div class="collapse navbar-collapse" id="navbarTimeBank">
+                <ul class="navbar-nav ms-lg-4 me-auto gap-1">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}">Explorar Servicios</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'index' %}">
+                            <i class="bi bi-grid me-1"></i> Services
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'exchanges' %}">Mis Intercambios</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'exchanges' %}active{% endif %}" href="{% url 'exchanges' %}">
+                            <i class="bi bi-arrow-left-right me-1"></i> Exchanges
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'benefits' %}">Beneficios</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'benefits' %}active{% endif %}" href="{% url 'benefits' %}">
+                            <i class="bi bi-award me-1"></i> Benefits
+                        </a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge bg-light text-primary fs-6 px-3 py-2 rounded-pill">
-                        <i class="bi bi-clock-history me-1"></i> Saldo: 4 hrs
-                    </span>
-                    <a href="/admin/" class="btn btn-outline-light btn-sm">Admin</a>
+
+                <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                    {% if user.is_authenticated %}
+                        {% if user.profile %}
+                        <span class="badge-hours">
+                            <i class="bi bi-clock-history me-1"></i> {{ user.profile.hours_balance }} hrs available
+                        </span>
+                        {% endif %}
+                        <span class="text-white-50 small">
+                            Hi, <strong class="text-white">{{ user.username }}</strong>
+                        </span>
+                        <form method="post" action="{% url 'logout' %}" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                                Log Out
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            Log In
+                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-light text-primary fw-semibold btn-sm rounded-pill px-3">
+                            Sign Up
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -48,12 +186,16 @@
 
     <!-- Contenido principal -->
     <main class="container my-4 flex-grow-1">
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
     </main>
 
-    <!-- Pie de página -->
-    <footer class="bg-white border-top py-3 text-center text-muted small">
-        TimeBank • Plataforma Universitaria de Intercambio de Habilidades
+    <!-- Pie de página discreto -->
+    <footer class="bg-white border-top py-3 mt-5">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center text-muted small">
+            <span><strong>TimeBank</strong> • Student community</span>
+            <span>1 hour shared = 1 hour earned</span>
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
