@@ -13,19 +13,45 @@
             <div class="card-header bg-white border-bottom py-3">
                 <h4 class="fw-bold mb-1">Request Service Exchange</h4>
                 <p class="text-muted small mb-0">
-                    Service: <strong>{{ offer.title }}</strong> • Provider: <strong>{{ offer.provider.user.username }}</strong>
+                    Service: <strong>{{ offer.title }}</strong> • Provider: <strong>{{ offer.provider.user.get_full_name|default:offer.provider.user.username }}</strong>
                 </p>
             </div>
 
             <div class="card-body p-4">
-                <div class="alert alert-light border d-flex justify-content-between align-items-center py-2 px-3 mb-4 rounded-3">
+                <!-- Saldo actual disponible -->
+                <div class="alert alert-light border d-flex justify-content-between align-items-center py-2 px-3 mb-3 rounded-3">
                     <span class="small text-muted">Your current balance:</span>
                     <span class="badge bg-primary-subtle text-primary fs-6">
-                        {{ petitioner.hours_balance }} hrs available
+                        <i class="bi bi-clock-history me-1"></i> {{ petitioner.hours_balance }} hrs available
                     </span>
                 </div>
 
-                <form method="POST">
+                <!-- Recordatorio de horarios permitidos por el proveedor -->
+                <div class="p-3 bg-light rounded-3 border mb-4">
+                    <div class="small fw-bold text-uppercase text-muted mb-1">
+                        <i class="bi bi-calendar-week text-primary me-1"></i> Provider's Available Schedule
+                    </div>
+                    <ul class="list-unstyled small mb-0">
+                        {% for schedule in offer.schedule_set.all %}
+                            <li>
+                                <strong>{{ schedule.get_days_week_display }}:</strong>
+                                {{ schedule.start_hour|time:"g:i A" }} - {{ schedule.end_hour|time:"g:i A" }}
+                            </li>
+                        {% empty %}
+                            <li class="text-muted">Flexible schedule (any day/time).</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger small">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="POST" novalidate>
                     {% csrf_token %}
 
                     {% for field in form %}
@@ -35,7 +61,7 @@
                         </label>
                         {{ field }}
                         {% if field.errors %}
-                            <div class="text-danger small mt-1">{{ field.errors }}</div>
+                            <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
                         {% endif %}
                     </div>
                     {% endfor %}

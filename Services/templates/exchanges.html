@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3 class="fw-bold mb-3">Intercambios Registrados</h3>
+<h3 class="fw-bold mb-3">Registered exchanges</h3>
 <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -9,13 +9,13 @@
                 <thead class="table-light">
                     <tr>
                         <th class="ps-4">ID</th>
-                        <th>Solicitante</th>
-                        <th>Servicio Solicitado</th>
-                        <th>Contraprestación</th>
-                        <th>Fecha y Hora</th>
-                        <th>Duración</th>
-                        <th>Estado</th>
-                        <th>Calificación</th>
+                        <th>Applicant</th>
+                        <th>Service requested</th>
+                        <th>Offered back</th>
+                        <th>Date and hour</th>
+                        <th>Duration</th>
+                        <th>State</th>
+                        <th>Calification</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,7 +28,7 @@
                             {% if item.offered_back %}
                                 {{ item.offered_back.title }} (Trueque)
                             {% else %}
-                                Pago con saldo de horas
+                                Payment with balance of hours
                             {% endif %}
                         </td>
                         <td>{{ item.agreed_date }} • {{ item.start_hour|time:"g:i A" }}</td>
@@ -48,14 +48,14 @@
                             {% if item.calification %}
                                 <span class="text-warning fw-semibold">★ {{ item.get_calification_display }}</span>
                             {% else %}
-                                <span class="text-muted small">Sin calificar</span>
+                                <span class="text-muted small">No graded</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
                         <td colspan="8" class="text-center py-4 text-muted">
-                            No hay intercambios registrados todavía.
+                            No exchanges registered yet.
                         </td>
                     </tr>
                     {% endfor %}

@@ -1,11 +1,12 @@
 #from django.shortcuts import HttpResponse
 import uuid
 from django.contrib import messages
-#from django.contrib.auth import login
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import ServiceOfferForm, StudentRegistrationForm, ExchangeRequestForm
 from .models import ServiceOffer, Exchange, Benefit, UserProfile, Category, Schedule
+from django.db.models import Q
 
 # Create your views here.
 #def Saludo(request):
@@ -14,7 +15,6 @@ from .models import ServiceOffer, Exchange, Benefit, UserProfile, Category, Sche
 def register_view(request):
     if request.user.is_authenticated:
         return redirect("index")
-
     if request.method == "POST":
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
@@ -57,19 +57,19 @@ def create_offer(request):
             offer = form.save(commit=False)
             offer.offer_id = f"OF-{uuid.uuid4().hex[:6].upper()}"
             offer.provider = profile
-            # Resolver categoría existente o crear nueva
+            # Asignar categoría existente o crear nueva
+            selected_category = form.cleaned_data.get("category")
             new_cat_name = form.cleaned_data.get("new_category_name", "").strip()
-            if new_cat_name:
-                new_cat_desc = (
-                    form.cleaned_data.get(
-                        "new_category_description", ""
-                    ).strip()
-                    or f"Services related to {new_cat_name}"
-                )
+            if selected_category:
+                offer.category = selected_category
+            elif new_cat_name:
+                new_cat_desc = form.cleaned_data.get(
+                    "new_category_description", ""
+                ).strip()
                 category_obj, _ = Category.objects.get_or_create(
                     name_category__iexact=new_cat_name,
                     defaults={
-                        "category_id": f"CAT-{uuid.uuid4().hex[:5].upper()}",
+                        "category_id": f"CAT-{uuid.uuid4().hex[:6].upper()}",
                         "name_category": new_cat_name,
                         "description_category": new_cat_desc,
                     },
@@ -95,10 +95,12 @@ def create_offer(request):
 
 @login_required
 def exchanges(request):
-    exchanges_list = Exchange.objects.all()
-    return render(
-        request, "exchanges.html", {"exchanges": exchanges_list}
-    )
+    profile = UserProfile.objects.filter(user=request.user).first()
+    if profile:
+        exchanges_list = Exchange.objects.filter(Q(petitioner_id=profile) | Q(offered_service__provider=profile)).order_by("-agreed_date")
+    else:
+        exchange_list = Exchange.objects.none()
+    return render(request, "exchanges.html", {"exchanges": exchanges_list})
 
 @login_required
 def benefits(request):
@@ -111,8 +113,9 @@ def request_exchange(request, offer_pk):
     petitioner_profile, _ = UserProfile.objects.get_or_create(
         user=request.user,
         defaults={
-            "student_id": "ADMIN",
+            "student_id": f"STU-{request.user.id}",
             "phone": "0000000000",
+            "hours_balance": 4,
             "accumulated_hours": 0,
         },
     )
@@ -120,20 +123,35 @@ def request_exchange(request, offer_pk):
         return redirect("offer_detail", pk=offer.pk)
 
     if request.method == "POST":
-        form = ExchangeRequestForm(request.POST, petitioner_profile=petitioner_profile)
+        form = ExchangeRequestForm(
+            request.POST,
+            petitioner_profile=petitioner_profile,
+            offer=offer,
+        )
         if form.is_valid():
             exchange = form.save(commit=False)
-            #Validación de saldo solo si no es un trueque directo (offered_back vacío)
-            if (not exchange.offered_back and petitioner_profile.hours_balance < exchange.duration_hours):
-                form.add_error("duration_hours", f"Insufficient balance. You currently have {petitioner_profile.hours_balance} hours available.")
+
+            if (
+                not exchange.offered_back
+                and petitioner_profile.hours_balance < exchange.duration_hours
+            ):
+                form.add_error(
+                    "duration_hours",
+                    f"Insufficient balance. You currently have {petitioner_profile.hours_balance} hr(s) available.",
+                )
             else:
-                exchange.exchange_id = f"EX-{uuid.uuid4().hex[:6].upper()}"
+                exchange.exchange_id = f"EX-{uuid.uuid4().hex[:5].upper()}"
                 exchange.petitioner_id = petitioner_profile
                 exchange.offered_service = offer
                 exchange.state_exchange = "PENDING"
                 exchange.save()
-                messages.success(request, "Exchange request submitted successfully!!")
+                messages.success(
+                    request, "Exchange request submitted successfully!"
+                )
                 return redirect("exchanges")
     else:
-        form = ExchangeRequestForm(petitioner_profile=petitioner_profile)
-        return render(request, "exchange_form.html", {"form": form, "offer": offer, "petitioner_profile": petitioner_profile})
+        form = ExchangeRequestForm(
+            petitioner_profile=petitioner_profile,
+            offer=offer,
+        )
+    return render(request, "exchange_form.html", {"form": form, "offer": offer, "petitioner": petitioner_profile})

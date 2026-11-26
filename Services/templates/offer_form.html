@@ -12,15 +12,16 @@
             </div>
 
             <div class="card-body p-4">
-                {% if form.non_field_errors %}
+                {% if form.errors %}
                     <div class="alert alert-danger small">
+                        <strong>Please correct the highlighted fields below:</strong>
                         {% for error in form.non_field_errors %}
-                            <div>{{ error }}</div>
+                            <div>• {{ error }}</div>
                         {% endfor %}
                     </div>
                 {% endif %}
 
-                <form method="POST">
+                <form method="POST" novalidate>
                     {% csrf_token %}
 
                     <!-- 1. Información principal -->
@@ -28,13 +29,13 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
                         {{ form.title }}
-                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold" for="{{ form.description_offer.id_for_label }}">{{ form.description_offer.label }}</label>
                         {{ form.description_offer }}
-                        {% if form.description_offer.errors %}<div class="text-danger small mt-1">{{ form.description_offer.errors }}</div>{% endif %}
+                        {% if form.description_offer.errors %}<div class="text-danger small mt-1">{{ form.description_offer.errors.0 }}</div>{% endif %}
                     </div>
 
                     <!-- 2. Categoría existente o nueva -->
@@ -42,21 +43,24 @@
                     <div class="mb-2">
                         <label class="form-label fw-semibold" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
                         {{ form.category }}
+                        {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>{% endif %}
                     </div>
 
                     <div class="mb-3">
                         <a class="small text-decoration-none fw-semibold" data-bs-toggle="collapse" href="#newCategoryCollapse" role="button" aria-expanded="false">
                             <i class="bi bi-plus-circle me-1"></i> Can't find your category? Add a new one
                         </a>
-                        <div class="collapse mt-2 {% if form.new_category_name.value %}show{% endif %}" id="newCategoryCollapse">
+                        <div class="collapse mt-2 {% if form.new_category_name.value or form.new_category_description.errors %}show{% endif %}" id="newCategoryCollapse">
                             <div class="p-3 bg-light rounded-3 border">
                                 <div class="mb-2">
                                     <label class="form-label small fw-semibold" for="{{ form.new_category_name.id_for_label }}">{{ form.new_category_name.label }}</label>
                                     {{ form.new_category_name }}
+                                    {% if form.new_category_name.errors %}<div class="text-danger small mt-1">{{ form.new_category_name.errors.0 }}</div>{% endif %}
                                 </div>
                                 <div>
                                     <label class="form-label small fw-semibold" for="{{ form.new_category_description.id_for_label }}">{{ form.new_category_description.label }}</label>
                                     {{ form.new_category_description }}
+                                    {% if form.new_category_description.errors %}<div class="text-danger small mt-1">{{ form.new_category_description.errors.0 }}</div>{% endif %}
                                 </div>
                             </div>
                         </div>
@@ -68,14 +72,17 @@
                         <div class="col-md-4">
                             <label class="form-label small fw-semibold" for="{{ form.days_week.id_for_label }}">{{ form.days_week.label }}</label>
                             {{ form.days_week }}
+                            {% if form.days_week.errors %}<div class="text-danger small mt-1">{{ form.days_week.errors.0 }}</div>{% endif %}
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-semibold" for="{{ form.start_hour.id_for_label }}">{{ form.start_hour.label }}</label>
                             {{ form.start_hour }}
+                            {% if form.start_hour.errors %}<div class="text-danger small mt-1">{{ form.start_hour.errors.0 }}</div>{% endif %}
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-semibold" for="{{ form.end_hour.id_for_label }}">{{ form.end_hour.label }}</label>
                             {{ form.end_hour }}
+                            {% if form.end_hour.errors %}<div class="text-danger small mt-1">{{ form.end_hour.errors.0 }}</div>{% endif %}
                         </div>
                     </div>
 
@@ -95,4 +102,35 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const categorySelect = document.getElementById("id_category");
+        const newCatName = document.getElementById("id_new_category_name");
+        const newCatDesc = document.getElementById("id_new_category_description");
+
+        function syncCategoryInputs() {
+            if (categorySelect.value) {
+                newCatName.value = "";
+                newCatDesc.value = "";
+                newCatName.disabled = true;
+                newCatDesc.disabled = true;
+            } else {
+                newCatName.disabled = false;
+                newCatDesc.disabled = false;
+            }
+
+            if (newCatName.value.trim() !== "") {
+                categorySelect.value = "";
+                categorySelect.disabled = true;
+            } else {
+                categorySelect.disabled = false;
+            }
+        }
+
+        categorySelect.addEventListener("change", syncCategoryInputs);
+        newCatName.addEventListener("input", syncCategoryInputs);
+        syncCategoryInputs();
+    });
+</script>
 {% endblock %}

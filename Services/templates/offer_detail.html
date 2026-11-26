@@ -28,38 +28,60 @@
     </div>
 
     <div class="row g-4 border-top pt-4 mb-4">
+        <!-- Datos de contacto y perfil del proveedor -->
         <div class="col-md-6">
-            <h6 class="fw-bold text-uppercase text-muted small mb-3">Provider Information</h6>
-            <p class="mb-2">
-                <i class="bi bi-person-badge text-primary me-2"></i>
-                <strong>{{ offer.provider.user.get_full_name|default:offer.provider.user.username }}</strong>
-                <span class="text-muted small">({{ offer.provider.student_id }})</span>
-            </p>
-            <p class="mb-2 text-muted small">
-                <i class="bi bi-telephone text-primary me-2"></i>
-                Phone: {{ offer.provider.phone }}
-            </p>
-            <p class="mb-0 text-muted small">
-                <i class="bi bi-award text-primary me-2"></i>
-                Goal: {{ offer.provider.get_purpose_display }}
-            </p>
+            <h6 class="fw-bold text-uppercase text-muted small mb-3">Provider & Contact Information</h6>
+            <div class="p-3 bg-light rounded-3 border">
+                <p class="mb-2 fs-6">
+                    <i class="bi bi-person-circle text-primary me-2"></i>
+                    <strong>{{ offer.provider.user.get_full_name|default:offer.provider.user.username }}</strong>
+                </p>
+
+                <p class="mb-2 text-muted small">
+                    <i class="bi bi-envelope text-primary me-2"></i>
+                    Email:
+                    {% if offer.provider.user.email %}
+                        <a href="mailto:{{ offer.provider.user.email }}" class="text-decoration-none fw-medium">{{ offer.provider.user.email }}</a>
+                    {% else %}
+                        <span class="fst-italic">Not provided</span>
+                    {% endif %}
+                </p>
+
+                <p class="mb-2 text-muted small">
+                    <i class="bi bi-telephone text-primary me-2"></i>
+                    Phone: <a href="tel:{{ offer.provider.phone }}" class="text-decoration-none fw-medium">{{ offer.provider.phone }}</a>
+                </p>
+
+                <p class="mb-2 text-muted small">
+                    <i class="bi bi-award text-primary me-2"></i>
+                    Platform Goal: <span class="text-dark fw-medium">{{ offer.provider.get_purpose_display }}</span>
+                </p>
+
+                <p class="mb-0 text-muted small">
+                    <i class="bi bi-patch-check text-primary me-2"></i>
+                    Experience: <span class="text-dark fw-medium">{{ offer.provider.accumulated_hours }} hrs shared on TimeBank</span>
+                </p>
+            </div>
         </div>
 
+        <!-- Horarios disponibles -->
         <div class="col-md-6">
             <h6 class="fw-bold text-uppercase text-muted small mb-3">Available Schedule</h6>
-            <ul class="list-unstyled mb-0">
-                {% for schedule in offer.schedule_set.all %}
-                    <li class="mb-2">
-                        <i class="bi bi-calendar-check text-primary me-2"></i>
-                        <strong>{{ schedule.get_days_week_display }}:</strong>
-                        {{ schedule.start_hour|time:"g:i A" }} - {{ schedule.end_hour|time:"g:i A" }}
-                    </li>
-                {% empty %}
-                    <li class="text-muted small">
-                        <i class="bi bi-clock me-1"></i> Flexible schedule — coordinate directly with the provider.
-                    </li>
-                {% endfor %}
-            </ul>
+            <div class="p-3 bg-light rounded-3 border">
+                <ul class="list-unstyled mb-0">
+                    {% for schedule in offer.schedule_set.all %}
+                        <li class="mb-2">
+                            <i class="bi bi-calendar-check text-primary me-2"></i>
+                            <strong>{{ schedule.get_days_week_display }}:</strong>
+                            {{ schedule.start_hour|time:"g:i A" }} - {{ schedule.end_hour|time:"g:i A" }}
+                        </li>
+                    {% empty %}
+                        <li class="text-muted small">
+                            <i class="bi bi-clock me-1"></i> Flexible schedule — contact the provider to coordinate a time.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 

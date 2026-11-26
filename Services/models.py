@@ -51,7 +51,7 @@ class ServiceOffer(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.offer_id
+        return f"{self.title} ({self.category.name_category})"
 
 class Exchange(models.Model):
     STATE_CHOICES = [
