@@ -2,38 +2,91 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
+    <div class="col-md-8 col-lg-7">
         <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white border-bottom py-3">
-                <h4 class="fw-bold mb-0">Post a new service offer</h4>
+            <div class="card-header bg-white border-bottom py-3 px-4">
+                <h4 class="fw-bold mb-1">Post a New Service Offer</h4>
+                <p class="text-muted small mb-0">
+                    Publishing as <strong>{{ user.get_full_name|default:user.username }}</strong> • Offer ID will be generated automatically
+                </p>
             </div>
+
             <div class="card-body p-4">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger small">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 <form method="POST">
                     {% csrf_token %}
 
-                    {% for field in form %}
+                    <!-- 1. Información principal -->
+                    <h6 class="fw-bold text-uppercase text-muted small mb-3">1. Service Details</h6>
                     <div class="mb-3">
-                        {% if field.field.widget.input_type == "checkbox" %}
-                            <div class="form-check">
-                                {{ field }}
-                                <label class="form-check-label fw-semibold" for="{{ field.id_for_label }}">
-                                    {{ field.label }}
-                                </label>
-                            </div>
-                        {% else %}
-                            <label class="form-label fw-semibold" for="{{ field.id_for_label }}">
-                                {{ field.label }}
-                            </label>
-                            {{ field }}
-                        {% endif %}
-
-                        {% if field.errors %}
-                            <div class="text-danger small mt-1">{{ field.errors }}</div>
-                        {% endif %}
+                        <label class="form-label fw-semibold" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
                     </div>
-                    {% endfor %}
 
-                    <div class="d-flex justify-content-end gap-2 mt-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="{{ form.description_offer.id_for_label }}">{{ form.description_offer.label }}</label>
+                        {{ form.description_offer }}
+                        {% if form.description_offer.errors %}<div class="text-danger small mt-1">{{ form.description_offer.errors }}</div>{% endif %}
+                    </div>
+
+                    <!-- 2. Categoría existente o nueva -->
+                    <h6 class="fw-bold text-uppercase text-muted small mt-4 mb-3">2. Category</h6>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                        {{ form.category }}
+                    </div>
+
+                    <div class="mb-3">
+                        <a class="small text-decoration-none fw-semibold" data-bs-toggle="collapse" href="#newCategoryCollapse" role="button" aria-expanded="false">
+                            <i class="bi bi-plus-circle me-1"></i> Can't find your category? Add a new one
+                        </a>
+                        <div class="collapse mt-2 {% if form.new_category_name.value %}show{% endif %}" id="newCategoryCollapse">
+                            <div class="p-3 bg-light rounded-3 border">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-semibold" for="{{ form.new_category_name.id_for_label }}">{{ form.new_category_name.label }}</label>
+                                    {{ form.new_category_name }}
+                                </div>
+                                <div>
+                                    <label class="form-label small fw-semibold" for="{{ form.new_category_description.id_for_label }}">{{ form.new_category_description.label }}</label>
+                                    {{ form.new_category_description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Disponibilidad horaria -->
+                    <h6 class="fw-bold text-uppercase text-muted small mt-4 mb-3">3. Initial Availability Schedule</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold" for="{{ form.days_week.id_for_label }}">{{ form.days_week.label }}</label>
+                            {{ form.days_week }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold" for="{{ form.start_hour.id_for_label }}">{{ form.start_hour.label }}</label>
+                            {{ form.start_hour }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold" for="{{ form.end_hour.id_for_label }}">{{ form.end_hour.label }}</label>
+                            {{ form.end_hour }}
+                        </div>
+                    </div>
+
+                    <div class="form-check mt-3">
+                        {{ form.state_offer }}
+                        <label class="form-check-label fw-semibold" for="{{ form.state_offer.id_for_label }}">
+                            {{ form.state_offer.label }}
+                        </label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
                         <a href="{% url 'index' %}" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary px-4">Publish Offer</button>
                     </div>

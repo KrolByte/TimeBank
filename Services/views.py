@@ -1,9 +1,11 @@
 #from django.shortcuts import HttpResponse
-from django.contrib.auth import login
+import uuid
+from django.contrib import messages
+#from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-from .forms import ServiceOfferForm, StudentRegistrationForm
-from .models import ServiceOffer, Exchange, Benefit, UserProfile
+from .forms import ServiceOfferForm, StudentRegistrationForm, ExchangeRequestForm
+from .models import ServiceOffer, Exchange, Benefit, UserProfile, Category, Schedule
 
 # Create your views here.
 #def Saludo(request):
@@ -52,8 +54,41 @@ def create_offer(request):
     if request.method == "POST":
         form = ServiceOfferForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect("index")
+            offer = form.save(commit=False)
+            offer.offer_id = f"OF-{uuid.uuid4().hex[:6].upper()}"
+            offer.provider = profile
+            # Resolver categoría existente o crear nueva
+            new_cat_name = form.cleaned_data.get("new_category_name", "").strip()
+            if new_cat_name:
+                new_cat_desc = (
+                    form.cleaned_data.get(
+                        "new_category_description", ""
+                    ).strip()
+                    or f"Services related to {new_cat_name}"
+                )
+                category_obj, _ = Category.objects.get_or_create(
+                    name_category__iexact=new_cat_name,
+                    defaults={
+                        "category_id": f"CAT-{uuid.uuid4().hex[:5].upper()}",
+                        "name_category": new_cat_name,
+                        "description_category": new_cat_desc,
+                    },
+                )
+                offer.category = category_obj
+            offer.save()
+            # Guardar disponibilidad horaria si fue completada
+            day = form.cleaned_data.get("days_week")
+            start = form.cleaned_data.get("start_hour")
+            end = form.cleaned_data.get("end_hour")
+            if day and start and end:
+                Schedule.objects.create(
+                    schedule_id=f"SCH-{uuid.uuid4().hex[:5].upper()}",
+                    days_week=day,
+                    start_hour=start,
+                    end_hour=end,
+                    offer=offer,
+                )
+            return redirect("offer_detail", pk=offer.pk)
     else:
         form = ServiceOfferForm()
     return render(request, "offer_form.html", {"form": form})
@@ -69,3 +104,36 @@ def exchanges(request):
 def benefits(request):
     benefits_list = Benefit.objects.all()
     return render(request, "benefits.html", {"benefits": benefits_list})
+
+@login_required
+def request_exchange(request, offer_pk):
+    offer = get_object_or_404(ServiceOffer, pk=offer_pk)
+    petitioner_profile, _ = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={
+            "student_id": "ADMIN",
+            "phone": "0000000000",
+            "accumulated_hours": 0,
+        },
+    )
+    if offer.provider == petitioner_profile or not offer.state_offer:
+        return redirect("offer_detail", pk=offer.pk)
+
+    if request.method == "POST":
+        form = ExchangeRequestForm(request.POST, petitioner_profile=petitioner_profile)
+        if form.is_valid():
+            exchange = form.save(commit=False)
+            #Validación de saldo solo si no es un trueque directo (offered_back vacío)
+            if (not exchange.offered_back and petitioner_profile.hours_balance < exchange.duration_hours):
+                form.add_error("duration_hours", f"Insufficient balance. You currently have {petitioner_profile.hours_balance} hours available.")
+            else:
+                exchange.exchange_id = f"EX-{uuid.uuid4().hex[:6].upper()}"
+                exchange.petitioner_id = petitioner_profile
+                exchange.offered_service = offer
+                exchange.state_exchange = "PENDING"
+                exchange.save()
+                messages.success(request, "Exchange request submitted successfully!!")
+                return redirect("exchanges")
+    else:
+        form = ExchangeRequestForm(petitioner_profile=petitioner_profile)
+        return render(request, "exchange_form.html", {"form": form, "offer": offer, "petitioner_profile": petitioner_profile})

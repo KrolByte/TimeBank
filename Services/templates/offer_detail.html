@@ -74,9 +74,9 @@
                 Your posted offer
             </span>
         {% elif offer.state_offer %}
-            <button class="btn btn-primary px-4">
+            <a href="{% url 'request_exchange' offer.pk %}" class="btn btn-primary px-4">
                 <i class="bi bi-arrow-left-right me-1"></i> Request Exchange
-            </button>
+            </a>
         {% else %}
             <button class="btn btn-secondary" disabled>Offer Unavailable</button>
         {% endif %}

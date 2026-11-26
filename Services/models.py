@@ -15,7 +15,7 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=10)
 
     def __str__(self):
-        return f"{self.user.username} ({self.hours_balance} hrs disponibles)"
+        return f"{self.user.username} ({self.hours_balance} hrs availables)"
 
 class Category(models.Model):
     category_id = models.CharField(max_length=10)
@@ -23,7 +23,7 @@ class Category(models.Model):
     description_category = models.TextField()
 
     def __str__(self):
-        return self.category_id
+        return self.name_category
 
 class Benefit(models.Model):
     BENEFIT_CHOICES = [
