@@ -11,23 +11,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
-            --tb-primary: #1e3a8a;       /* Azul Rey Institucional */
-            --tb-primary-hover: #172554; /* Azul Rey profundo */
+            --tb-primary: #1e3a8a;       /* Azul rey institucional */
+            --tb-primary-hover: #172554; /* Azul rey profundo */
             --tb-violet: #7c3aed;        /* Violeta de acento */
             --tb-cyan: #38bdf8;          /* Destello cian para contraste */
             --tb-bg: #f8fafc;
         }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--tb-bg);
             color: #1e293b;
         }
-
-        /* Navbar fija, sutil y sólida en Azul Rey */
+        /* Navbar fija, sutil y sólida en azul rey */
         .navbar-timebank {
             background-color: var(--tb-primary);
             border-bottom: 2px solid rgba(124, 58, 237, 0.45);
@@ -35,7 +32,6 @@
             padding-top: 0.65rem;
             padding-bottom: 0.65rem;
         }
-
         .navbar-timebank .nav-link {
             color: rgba(255, 255, 255, 0.82);
             font-weight: 500;
@@ -44,18 +40,15 @@
             border-radius: 0.5rem;
             transition: all 0.2s ease;
         }
-
         .navbar-timebank .nav-link:hover {
             color: #ffffff;
             background-color: rgba(255, 255, 255, 0.1);
         }
-
         .navbar-timebank .nav-link.active {
             color: #ffffff;
             background-color: var(--tb-violet);
             box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
         }
-
         /* Cápsula de saldo */
         .badge-hours {
             background-color: rgba(56, 189, 248, 0.16);
@@ -66,29 +59,24 @@
             border-radius: 999px;
             font-size: 0.85rem;
         }
-
         /* Adaptación automática de clases Bootstrap */
         .btn-primary {
             background-color: var(--tb-primary);
             border-color: var(--tb-primary);
         }
-
         .btn-primary:hover, .btn-primary:focus {
             background-color: var(--tb-violet);
             border-color: var(--tb-violet);
         }
-
         .btn-outline-primary {
             color: var(--tb-primary);
             border-color: var(--tb-primary);
         }
-
         .btn-outline-primary:hover {
             background-color: var(--tb-primary);
             border-color: var(--tb-primary);
             color: #ffffff;
         }
-
         .text-primary {
             color: var(--tb-primary) !important;
         }
@@ -97,16 +85,13 @@
             background-color: #ede9fe !important; /* Lavanda suave */
             color: var(--tb-violet) !important;
         }
-
         .border-primary {
             border-color: var(--tb-violet) !important;
         }
-
         /* Efecto suave en tarjetas */
         .card-hover {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
         .card-hover:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 24px rgba(30, 58, 138, 0.1) !important;
@@ -114,7 +99,6 @@
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
-
     <!-- Barra de navegación fija y sólida -->
     <nav class="navbar navbar-expand-lg navbar-dark navbar-timebank sticky-top">
         <div class="container">
@@ -131,11 +115,9 @@
                 </svg>
                 <span class="fs-5">Time<span style="color: #38bdf8;">Bank</span></span>
             </a>
-
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTimeBank">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarTimeBank">
                 <ul class="navbar-nav ms-lg-4 me-auto gap-1">
                     <li class="nav-item">
@@ -154,7 +136,6 @@
                         </a>
                     </li>
                 </ul>
-
                 <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
                     {% if user.is_authenticated %}
                         {% if user.profile %}
@@ -183,13 +164,11 @@
             </div>
         </div>
     </nav>
-
     <!-- Contenido principal -->
     <main class="container my-4 flex-grow-1">
         {% block content %}
         {% endblock %}
     </main>
-
     <!-- Pie de página discreto -->
     <footer class="bg-white border-top py-3 mt-5">
         <div class="container d-flex flex-wrap justify-content-between align-items-center text-muted small">
@@ -197,7 +176,6 @@
             <span>1 hour shared = 1 hour earned</span>
         </div>
     </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

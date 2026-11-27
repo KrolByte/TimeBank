@@ -55,11 +55,11 @@ def create_offer(request):
         form = ServiceOfferForm(request.POST)
         if form.is_valid():
             offer = form.save(commit=False)
-            offer.offer_id = f"OF-{uuid.uuid4().hex[:6].upper()}"
+            offer.offer_id = f"OF-{uuid.uuid4().hex[:6].upper()}" #upper es para que el hexadecimal esté en mayúsculas
             offer.provider = profile
-            # Asignar categoría existente o crear nueva
-            selected_category = form.cleaned_data.get("category")
-            new_cat_name = form.cleaned_data.get("new_category_name", "").strip()
+            # Categoría existente o crear nueva
+            selected_category = form.cleaned_data.get("category") #cleaned_data me trae los datos limpios y en el formato correcto
+            new_cat_name = form.cleaned_data.get("new_category_name", "").strip() #strip elimina espacios en blanco, "" respaldo por si un campo no tiene info
             if selected_category:
                 offer.category = selected_category
             elif new_cat_name:
@@ -67,7 +67,7 @@ def create_offer(request):
                     "new_category_description", ""
                 ).strip()
                 category_obj, _ = Category.objects.get_or_create(
-                    name_category__iexact=new_cat_name,
+                    name_category__iexact=new_cat_name, #busca el nombre de la categoría sin importar mayúsculas o minúsculas
                     defaults={
                         "category_id": f"CAT-{uuid.uuid4().hex[:6].upper()}",
                         "name_category": new_cat_name,
@@ -76,7 +76,7 @@ def create_offer(request):
                 )
                 offer.category = category_obj
             offer.save()
-            # Guardar disponibilidad horaria si fue completada
+            #Guarda disponibilidad horaria si fue completada
             day = form.cleaned_data.get("days_week")
             start = form.cleaned_data.get("start_hour")
             end = form.cleaned_data.get("end_hour")
@@ -95,11 +95,9 @@ def create_offer(request):
 
 @login_required
 def exchanges(request):
-    profile = UserProfile.objects.filter(user=request.user).first()
-    if profile:
-        exchanges_list = Exchange.objects.filter(Q(petitioner_id=profile) | Q(offered_service__provider=profile)).order_by("-agreed_date")
-    else:
-        exchange_list = Exchange.objects.none()
+    exchanges_list = (
+        Exchange.objects.filter(Q(petitioner_id__user=request.user) | Q(offered_service__provider__user=request.user)).distinct().order_by("-agreed_date")
+    )
     return render(request, "exchanges.html", {"exchanges": exchanges_list})
 
 @login_required
@@ -110,8 +108,7 @@ def benefits(request):
 @login_required
 def request_exchange(request, offer_pk):
     offer = get_object_or_404(ServiceOffer, pk=offer_pk)
-    petitioner_profile, _ = UserProfile.objects.get_or_create(
-        user=request.user,
+    petitioner_profile, _ = UserProfile.objects.get_or_create(user=request.user,
         defaults={
             "student_id": f"STU-{request.user.id}",
             "phone": "0000000000",
@@ -131,14 +128,8 @@ def request_exchange(request, offer_pk):
         if form.is_valid():
             exchange = form.save(commit=False)
 
-            if (
-                not exchange.offered_back
-                and petitioner_profile.hours_balance < exchange.duration_hours
-            ):
-                form.add_error(
-                    "duration_hours",
-                    f"Insufficient balance. You currently have {petitioner_profile.hours_balance} hr(s) available.",
-                )
+            if (not exchange.offered_back and petitioner_profile.hours_balance < exchange.duration_hours):
+                form.add_error("duration_hours", f"Insufficient balance. You currently have {petitioner_profile.hours_balance} hr(s) available.")
             else:
                 exchange.exchange_id = f"EX-{uuid.uuid4().hex[:5].upper()}"
                 exchange.petitioner_id = petitioner_profile
@@ -150,8 +141,5 @@ def request_exchange(request, offer_pk):
                 )
                 return redirect("exchanges")
     else:
-        form = ExchangeRequestForm(
-            petitioner_profile=petitioner_profile,
-            offer=offer,
-        )
+        form = ExchangeRequestForm(petitioner_profile=petitioner_profile, offer=offer)
     return render(request, "exchange_form.html", {"form": form, "offer": offer, "petitioner": petitioner_profile})

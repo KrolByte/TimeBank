@@ -5,9 +5,9 @@ from .models import Exchange, ServiceOffer, Category, Schedule, UserProfile
 from datetime import datetime, timedelta
 
 class StudentRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True, label="Institutional or Personal Email",
+    email = forms.EmailField(required=True, label="Institutional or personal email",
         widget=forms.EmailInput(
-            attrs={"class": "form-control", "placeholder": "student@example.com"}
+            attrs={"class": "form-control", "placeholder": "student@example.com"} #attrs agrega propiedades de html a los campos
         ),
     )
     student_id = forms.CharField(max_length=10, label="Student ID",
@@ -15,13 +15,15 @@ class StudentRegistrationForm(UserCreationForm):
             attrs={"class": "form-control", "placeholder": "ex., 20241005"}
         ),
     )
-    phone = forms.CharField(max_length=10, label="Phone Number",
+    phone = forms.CharField(max_length=10, label="Phone number",
         widget=forms.TextInput(
             attrs={"class": "form-control", "placeholder": "ex., 3001234567"}
         ),
     )
-    purpose = forms.ChoiceField(choices=UserProfile.PURPOSE_CHOICES, label="Platform Goal",
-        widget=forms.Select(attrs={"class": "form-select"}),
+    purpose = forms.ChoiceField(choices=UserProfile.PURPOSE_CHOICES, label="Platform goal",
+        widget=forms.Select(
+            attrs={"class": "form-select"}
+        ),
     )
 
     class Meta:
@@ -34,8 +36,8 @@ class StudentRegistrationForm(UserCreationForm):
             "email": forms.EmailInput(attrs={"class": "form-control"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs): #al crear un nuevo objeto inicializa sus atributos y prepara variables
+        super().__init__(*args, **kwargs) #super llama al constructor de la clase padre (UserCreationForm) para inicializar los atributos heredados
         self.fields["password1"].widget.attrs.update({"class": "form-control"})
         self.fields["password2"].widget.attrs.update({"class": "form-control"})
 
@@ -44,7 +46,7 @@ class ServiceOfferForm(forms.ModelForm):
     category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         required=False,
-        label="Existing Category",
+        label="Existing category",
         empty_label="-- Select an existing category --",
         widget=forms.Select(attrs={"class": "form-select"}),
     )
@@ -52,7 +54,7 @@ class ServiceOfferForm(forms.ModelForm):
     new_category_name = forms.CharField(
         max_length=50,
         required=False,
-        label="New Category Name",
+        label="New category name",
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
@@ -62,7 +64,7 @@ class ServiceOfferForm(forms.ModelForm):
     )
     new_category_description = forms.CharField(
         required=False,
-        label="New Category Description",
+        label="New category description",
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
@@ -74,19 +76,19 @@ class ServiceOfferForm(forms.ModelForm):
     days_week = forms.ChoiceField(
         choices=[("", "-- Select a day --")] + Schedule.DAYS_CHOICES,
         required=True,
-        label="Available Day",
+        label="Available day",
         widget=forms.Select(attrs={"class": "form-select"}),
     )
     start_hour = forms.TimeField(
         required=True,
-        label="Start Time",
+        label="Start time",
         widget=forms.TimeInput(
             attrs={"class": "form-control", "type": "time"}
         ),
     )
     end_hour = forms.TimeField(
         required=True,
-        label="End Time",
+        label="End time",
         widget=forms.TimeInput(
             attrs={"class": "form-control", "type": "time"}
         ),
@@ -97,9 +99,9 @@ class ServiceOfferForm(forms.ModelForm):
         # Quitamos "category" de aquí; lo asignamos manualmente en views.py
         fields = ["title", "description_offer", "state_offer"]
         labels = {
-            "title": "Service Title (max. 20 chars)",
-            "description_offer": "Detailed Description",
-            "state_offer": "Active Offer?",
+            "title": "Service title (max. 20 chars)",
+            "description_offer": "Detailed description",
+            "state_offer": "Active offer?",
         }
         widgets = {
             "title": forms.TextInput(
@@ -175,6 +177,7 @@ class ExchangeRequestForm(forms.ModelForm):
             ),
         }
 
+    #restricción para que el usuario no pueda ver un servicio que no le pertenece
     def __init__(self, *args, petitioner_profile=None, offer=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.offer = offer
@@ -185,26 +188,23 @@ class ExchangeRequestForm(forms.ModelForm):
             self.fields["offered_back"].queryset = ServiceOffer.objects.filter(
                 provider=petitioner_profile, state_offer=True
             )
-
-    #Validación del rango horario del proveedor
+            
+    #valida del rango horario del proveedor
     def clean(self):
         cleaned_data = super().clean()
         agreed_date = cleaned_data.get("agreed_date")
         start_hour = cleaned_data.get("start_hour")
         duration_hours = cleaned_data.get("duration_hours")
-
         if not (agreed_date and start_hour and duration_hours and self.offer):
             return cleaned_data
-
-        # Validar que la fecha no sea en el pasado
+        # Valida que la fecha no sea en el pasado
         if agreed_date < datetime.now().date():
             self.add_error("agreed_date", "You cannot select a past date.")
             return cleaned_data
-
-        # Verificar disponibilidad del proveedor si tiene horarios registrados
+        # Verifica disponibilidad del proveedor si tiene horarios registrados
         schedules = self.offer.schedule_set.all()
         if schedules.exists():
-            # Mapear número de día de la semana (0=Lunes ... 6=Domingo) a los códigos habituales
+            # Mapea el número de día de la semana (0=Lunes ... 6=Domingo) a los códigos habituales
             weekday_num = agreed_date.weekday()
             day_aliases = {
                 0: ["MON", "LUN", "MONDAY", "LUNES", "0", "1"],
@@ -215,14 +215,12 @@ class ExchangeRequestForm(forms.ModelForm):
                 5: ["SAT", "SAB", "SÁB", "SATURDAY", "SABADO", "SÁBADO", "5", "6"],
                 6: ["SUN", "DOM", "SUNDAY", "DOMINGO", "6", "7"],
             }
-            valid_codes = day_aliases[weekday_num]
-
+            valid_codes = day_aliases[weekday_num] #obtiene los códigos válidos para el día de la semana
             matching_schedules = [
                 s
                 for s in schedules
                 if str(s.days_week).strip().upper() in valid_codes
             ]
-
             if not matching_schedules:
                 available_days = ", ".join(
                     s.get_days_week_display() for s in schedules
@@ -232,12 +230,10 @@ class ExchangeRequestForm(forms.ModelForm):
                     f"The provider is only available on: {available_days}.",
                 )
                 return cleaned_data
-
-            # Calcular hora de finalización solicitada
+            # Calcula la hora de finalización solicitada
             start_dt = datetime.combine(agreed_date, start_hour)
             end_dt = start_dt + timedelta(hours=duration_hours)
-
-            # Verificar si cabe dentro de alguna franja horaria de ese día
+            # Verifica si cabe dentro de alguna franja horaria de ese día
             fits_schedule = False
             for s in matching_schedules:
                 sched_start = datetime.combine(agreed_date, s.start_hour)
@@ -245,7 +241,7 @@ class ExchangeRequestForm(forms.ModelForm):
                 if start_dt >= sched_start and end_dt <= sched_end:
                     fits_schedule = True
                     break
-
+            #si no cabe en ninguna franja horaria, muestra un error con las franjas disponibles
             if not fits_schedule:
                 ranges = ", ".join(
                     f"{s.start_hour.strftime('%I:%M %p')} - {s.end_hour.strftime('%I:%M %p')}"
@@ -255,5 +251,4 @@ class ExchangeRequestForm(forms.ModelForm):
                     "start_hour",
                     f"Requested time + duration exceeds the provider's schedule ({ranges}).",
                 )
-
         return cleaned_data

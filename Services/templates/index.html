@@ -10,11 +10,11 @@
             </p>
             {% if user.is_authenticated %}
                 <a href="{% url 'create_offer' %}" class="btn btn-primary px-4">
-                    <i class="bi bi-plus-circle me-1"></i> Post Offer
+                    <i class="bi bi-plus-circle me-1"></i> Post offer
                 </a>
             {% else %}
                 <a href="{% url 'login' %}?next={% url 'create_offer' %}" class="btn btn-primary px-4">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Log in to Post Offer
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Log in to post offer
                 </a>
             {% endif %}
                     </div>
@@ -26,8 +26,7 @@
         </div>
     </div>
 </div>
-
-<h4 class="fw-semibold mb-3">Available Services</h4>
+<h4 class="fw-semibold mb-3">Available services</h4>
 <div class="row g-4">
     {% for offer in offers %}
     <div class="col-md-4">
@@ -43,17 +42,14 @@
                         <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
                     {% endif %}
                 </div>
-
                 <h5 class="card-title fw-bold mb-2">{{ offer.title }}</h5>
-
                 <p class="text-muted small mb-4 flex-grow-1">
                     <i class="bi bi-person-circle me-1"></i>
                     Provided by <strong>{{ offer.provider.user.get_full_name|default:offer.provider.user.username }}</strong>
                 </p>
-
                 <div class="border-top pt-3 mt-auto">
                     <a href="{% url 'offer_detail' offer.id %}" class="btn btn-outline-primary w-100 btn-sm">
-                        View Offer
+                        View offer
                     </a>
                 </div>
             </div>
